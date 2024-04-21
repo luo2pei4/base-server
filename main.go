@@ -12,6 +12,11 @@ import (
 	"github.com/luo2pei4/base-server/logger"
 )
 
+func init() {
+	// 初始化日志框架
+	logger.InitLog()
+}
+
 func main() {
 
 	logger.Info("Start Gin server")

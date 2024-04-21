@@ -7,7 +7,7 @@ import (
 
 var logger *logrus.Logger
 
-func init() {
+func InitLog() {
 
 	logger = logrus.New()
 	logger.SetLevel(logrus.DebugLevel)
@@ -26,6 +26,22 @@ func Infof(format string, args ...string) {
 
 func Info(args ...string) {
 	logger.Info(args)
+}
+
+func Warnf(format string, args ...string) {
+	logger.Warnf(format, args)
+}
+
+func Warn(args ...string) {
+	logger.Warn(args)
+}
+
+func Errorf(format string, args ...string) {
+	logger.Errorf(format, args)
+}
+
+func Error(args ...string) {
+	logger.Error(args)
 }
 
 func Panicf(format string, args ...string) {
