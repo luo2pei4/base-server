@@ -1,2 +1,2 @@
 # exclude go.sum file
-.sum
+go.sum
