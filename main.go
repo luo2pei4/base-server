@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/luo2pei4/base-server/logger"
+	"github.com/luo2pei4/base-server/router"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -76,13 +76,8 @@ func start(cmd *cobra.Command, args []string) {
 	// 初始化日志框架
 	logger.InitLog(logLevel, flagLogFile)
 
-	logger.Info("Start Gin server")
-
-	router := gin.New()
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "Welcome Gin Server")
-		logger.Info("hellow gin server")
-	})
+	// 初始化router
+	router := router.InitRouter()
 
 	srv := &http.Server{
 		Addr:    flagServerPort, // 设置端口
