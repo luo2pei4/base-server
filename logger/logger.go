@@ -7,13 +7,12 @@ import (
 
 var logger *logrus.Logger
 
-func InitLog() {
-
+func InitLog(logLevel logrus.Level, logPath string) {
 	logger = logrus.New()
-	logger.SetLevel(logrus.DebugLevel)
+	logger.SetLevel(logLevel)
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetOutput(&lumberjack.Logger{
-		Filename: "./base-server.log",
+		Filename: logPath,
 		MaxSize:  10,
 		MaxAge:   10,
 		Compress: true,

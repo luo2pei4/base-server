@@ -2,22 +2,79 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/luo2pei4/base-server/logger"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+)
+
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "start base-server",
+	Run:   start,
+}
+
+var (
+	flagServerPort string
+	flagLogLevel   string
+	flagLogFile    string
 )
 
 func init() {
-	// 初始化日志框架
-	logger.InitLog()
+	startCmd.Flags().StringVarP(&flagServerPort, "port", "p", ":8080", "server port, like '8080' or ':8080'")
+	startCmd.Flags().StringVarP(&flagLogLevel, "log-level", "l", "info", "the level of log")
+	startCmd.Flags().StringVarP(&flagLogFile, "log-file", "f", "./base-server.log", "the name of log file with full path, the file name must with suffix '.log'")
 }
 
 func main() {
+	startCmd.Execute()
+}
+
+func checkArgs() error {
+	// 检查端口
+	matched, err := regexp.MatchString("^:?[0-9]{4,5}", flagServerPort)
+	if err != nil {
+		return err
+	}
+	if !matched {
+		return fmt.Errorf("port is invalid")
+	}
+	// 检查日志等级
+	switch flagLogLevel {
+	case "info":
+	case "warn":
+	case "debug":
+	default:
+		return errors.New("log level must be info/warn/debug")
+	}
+	// 检查日志文件名称
+	if !strings.HasSuffix(flagLogFile, ".log") {
+		return errors.New("invalid log file name")
+	}
+	return nil
+}
+
+func start(cmd *cobra.Command, args []string) {
+	// 检查参数有效性
+	if err := checkArgs(); err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	// 解析日志等级
+	logLevel, _ := logrus.ParseLevel(flagLogLevel)
+
+	// 初始化日志框架
+	logger.InitLog(logLevel, flagLogFile)
 
 	logger.Info("Start Gin server")
 
@@ -28,7 +85,7 @@ func main() {
 	})
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    flagServerPort, // 设置端口
 		Handler: router,
 	}
 

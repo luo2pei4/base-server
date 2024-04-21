@@ -1,2 +1,8 @@
 # exclude go.sum file
 go.sum
+
+# exclude .log files
+*.log
+
+# exclude binary base-server
+base-server
