@@ -1,17 +1,15 @@
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"regexp"
 
-type ServerCollector struct {
-	desc *prometheus.Desc
-}
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+)
 
 func init() {
-	prometheus.MustRegister()
+	prometheus.MustRegister(collectors.NewBuildInfoCollector())
+	prometheus.MustRegister(collectors.NewGoCollector(
+		collectors.WithGoCollectorRuntimeMetrics(collectors.GoRuntimeMetricsRule{Matcher: regexp.MustCompile("/.*")}),
+	))
 }
-
-func (c *ServerCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.desc
-}
-
-func (c *ServerCollector) Collect(ch chan<- *prometheus.Metric) {}
