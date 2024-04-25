@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/luo2pei4/base-server/logger"
-	"github.com/luo2pei4/base-server/router"
+	"github.com/luo2pei4/base-server/routers"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -77,7 +77,7 @@ func start(cmd *cobra.Command, args []string) {
 	logger.InitLog(logLevel, flagLogFile)
 
 	// 初始化router
-	router := router.InitRouter()
+	router := routers.InitRouter()
 
 	srv := &http.Server{
 		Addr:    flagServerPort, // 设置端口

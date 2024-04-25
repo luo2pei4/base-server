@@ -60,7 +60,7 @@ func (stats *HTTPAPIStats) Load() map[string]int {
 
 func (stats *HTTPStats) updateStats(api string, ctx *gin.Context) {
 	successReq := ctx.Writer.Status() >= 200 && ctx.Writer.Status() < 400
-	if !strings.HasSuffix(ctx.Request.URL.Path, "/metrics") {
+	if !strings.HasSuffix(ctx.FullPath(), "/metrics") {
 		if !successReq {
 			switch ctx.Writer.Status() {
 			case 0:

@@ -1,12 +1,12 @@
-package router
+package routers
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/luo2pei4/base-server/logger"
+	"github.com/luo2pei4/base-server/metrics"
 	"github.com/luo2pei4/base-server/middleware"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func InitRouter() *gin.Engine {
@@ -15,6 +15,6 @@ func InitRouter() *gin.Engine {
 		ctx.String(http.StatusOK, "Welcome Gin Server")
 		logger.Info("hellow gin server")
 	})
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/metrics", gin.WrapH(metrics.PrometheusHandler()))
 	return router
 }

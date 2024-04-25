@@ -1,33 +1,55 @@
 package metrics
 
 import (
+	"net/http"
+	"regexp"
+
 	"github.com/luo2pei4/base-server/middleware"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-type serviceCollector struct {
+type serviceMetricsCollector struct {
 	desc *prometheus.Desc
 }
 
+var serviceCollector *serviceMetricsCollector
+
 func init() {
-	// prometheus.MustRegister(collectors.NewBuildInfoCollector())
-	// prometheus.MustRegister(collectors.NewGoCollector(
-	// 	collectors.WithGoCollectorRuntimeMetrics(collectors.GoRuntimeMetricsRule{Matcher: regexp.MustCompile("/.*")}),
-	// ))
-	prometheus.MustRegister(newServiceCollector())
+	serviceCollector = newServiceMetricsCollector()
 }
 
-func newServiceCollector() *serviceCollector {
-	return &serviceCollector{
+func PrometheusHandler() http.Handler {
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(
+		serviceCollector,
+		collectors.NewBuildInfoCollector(),
+		collectors.NewGoCollector(
+			collectors.WithGoCollectorRuntimeMetrics(collectors.GoRuntimeMetricsRule{Matcher: regexp.MustCompile("/.*")}),
+		),
+	)
+	gatherers := prometheus.Gatherers{
+		registry,
+	}
+	return promhttp.InstrumentMetricHandler(
+		registry,
+		promhttp.HandlerFor(gatherers, promhttp.HandlerOpts{
+			ErrorHandling: promhttp.ContinueOnError,
+		}))
+}
+
+func newServiceMetricsCollector() *serviceMetricsCollector {
+	return &serviceMetricsCollector{
 		desc: prometheus.NewDesc("service_stats", "statistics exposed by base-server service", nil, nil),
 	}
 }
 
-func (s *serviceCollector) Describe(ch chan<- *prometheus.Desc) {
+func (s *serviceMetricsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- s.desc
 }
 
-func (s serviceCollector) Collect(ch chan<- prometheus.Metric) {
+func (s serviceMetricsCollector) Collect(ch chan<- prometheus.Metric) {
 	httpMetricsPrometheus(ch)
 }
 
@@ -35,7 +57,7 @@ func httpMetricsPrometheus(ch chan<- prometheus.Metric) {
 	for api, value := range middleware.GlobalHTTPStats.TotalRequests.Load() {
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName("http", "requests", "total"),
+				prometheus.BuildFQName("service_stats", "http", "requests_total"),
 				"Total number of http requests",
 				[]string{"api"}, nil),
 			prometheus.CounterValue,
@@ -46,7 +68,7 @@ func httpMetricsPrometheus(ch chan<- prometheus.Metric) {
 	for api, value := range middleware.GlobalHTTPStats.TotalErrors.Load() {
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName("http", "errors", "total"),
+				prometheus.BuildFQName("service_stats", "http", "errors_total"),
 				"Total number of error requests",
 				[]string{"api"}, nil),
 			prometheus.CounterValue,
@@ -57,7 +79,7 @@ func httpMetricsPrometheus(ch chan<- prometheus.Metric) {
 	for api, value := range middleware.GlobalHTTPStats.TotalCanceled.Load() {
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName("http", "canceled", "total"),
+				prometheus.BuildFQName("service_stats", "http", "canceled_total"),
 				"Total number of canceled requests",
 				[]string{"api"}, nil),
 			prometheus.CounterValue,
