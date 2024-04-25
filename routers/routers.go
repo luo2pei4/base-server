@@ -11,6 +11,9 @@ import (
 )
 
 func InitRouter() *gin.Engine {
+
+	gin.SetMode(gin.ReleaseMode)
+
 	// 创建router
 	router := gin.New()
 	// 注册pprof，默认地址/debug/pprof

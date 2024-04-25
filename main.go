@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"runtime"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -66,6 +68,7 @@ func checkArgs() error {
 }
 
 func start(cmd *cobra.Command, args []string) {
+
 	// 检查参数有效性
 	if err := checkArgs(); err != nil {
 		log.Fatalln(err.Error())
@@ -76,6 +79,9 @@ func start(cmd *cobra.Command, args []string) {
 
 	// 初始化日志框架
 	logger.InitLog(logLevel, flagLogFile)
+
+	// 设置最大cpu使用数，默认50%
+	setMaxCPUNum()
 
 	// 初始化router
 	router := routers.InitRouter()
@@ -96,12 +102,18 @@ func start(cmd *cobra.Command, args []string) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	<-quit
-	log.Println("Shutdown Server ...")
+	logger.Info("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		logger.Info("Server Shutdown:", err.Error())
 	}
-	log.Println("Server exiting")
+	logger.Info("Server exiting")
+}
+
+func setMaxCPUNum() {
+	maxCPUNum := int((runtime.NumCPU() * 50) / 100)
+	runtime.GOMAXPROCS(maxCPUNum)
+	logger.Info("set max cpu num:", strconv.Itoa(maxCPUNum))
 }
