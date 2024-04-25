@@ -19,30 +19,38 @@ func InitLog(logLevel logrus.Level, logPath string) {
 	})
 }
 
-func Infof(format string, args ...string) {
-	logger.Infof(format, args)
+func Infof(format string, args ...interface{}) {
+	logger.Infof(format, args...)
 }
 
 func Info(args ...string) {
 	logger.Info(args)
 }
 
-func Warnf(format string, args ...string) {
-	logger.Warnf(format, args)
+func Warnf(format string, args ...interface{}) {
+	logger.Warnf(format, args...)
 }
 
 func Warn(args ...string) {
 	logger.Warn(args)
 }
 
-func Errorf(format string, args ...string) {
-	logger.Errorf(format, args)
+func Errorf(format string, args ...interface{}) {
+	logger.Errorf(format, args...)
 }
 
 func Error(args ...string) {
 	logger.Error(args)
 }
 
-func Panicf(format string, args ...string) {
-	logger.Panicf(format, args)
+func Debugf(format string, args ...interface{}) {
+	logger.Debugf(format, args...)
+}
+
+func Debug(args ...string) {
+	logger.Debug(args)
+}
+
+func Panicf(format string, args ...interface{}) {
+	logger.Panicf(format, args...)
 }

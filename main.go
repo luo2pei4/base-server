@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -107,7 +106,7 @@ func start(cmd *cobra.Command, args []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Info("Server Shutdown:", err.Error())
+		logger.Infof("Server Shutdown: %s", err.Error())
 	}
 	logger.Info("Server exiting")
 }
@@ -115,5 +114,5 @@ func start(cmd *cobra.Command, args []string) {
 func setMaxCPUNum() {
 	maxCPUNum := int((runtime.NumCPU() * 50) / 100)
 	runtime.GOMAXPROCS(maxCPUNum)
-	logger.Info("set max cpu num:", strconv.Itoa(maxCPUNum))
+	logger.Infof("set max cpu num: %d", maxCPUNum)
 }
