@@ -17,6 +17,7 @@ type ServiceConfigs struct {
 	SericePort string `toml:"service_port"` // 端口
 	LogLevel   string `toml:"log_level"`    // 日志输出等级
 	LogFile    string `toml:"log_file"`     // 日志文件路径
+	MaxCPURate int    `toml:"max_cpu_rate"` // cpu最大使用率
 }
 
 var (
@@ -94,4 +95,14 @@ func GetLogFile() string {
 		return "./base-server.log"
 	}
 	return serviceConfigs.LogFile
+}
+
+func GetMaxCPUUsage() int {
+	serviceConfigsMu.RLock()
+	defer serviceConfigsMu.RUnlock()
+	if serviceConfigs.MaxCPURate > 100 ||
+		serviceConfigs.MaxCPURate <= 0 {
+		return 100
+	}
+	return serviceConfigs.MaxCPURate
 }
