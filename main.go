@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/luo2pei4/base-server/logger"
+	"github.com/luo2pei4/base-server/internal/logger"
 	"github.com/luo2pei4/base-server/routers"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
