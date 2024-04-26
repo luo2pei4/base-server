@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -58,7 +59,11 @@ func StartServiceConfigWatch() {
 	v.SetConfigType("toml")
 	v.WatchConfig()
 	v.OnConfigChange(func(in fsnotify.Event) {
+		// 重新加载配置文件
 		LoadServiceConfig(serviceConfigsFile)
+		// 设置最大CPU使用数量
+		SetMaxCPUNum()
+		// 设置日志等级
 		logger.SetLogLevel(serviceConfigs.LogLevel)
 	})
 }
@@ -100,9 +105,20 @@ func GetLogFile() string {
 func GetMaxCPUUsage() int {
 	serviceConfigsMu.RLock()
 	defer serviceConfigsMu.RUnlock()
-	if serviceConfigs.MaxCPURate > 100 ||
-		serviceConfigs.MaxCPURate <= 0 {
+	if serviceConfigs.MaxCPURate > 100 {
 		return 100
 	}
+	if serviceConfigs.MaxCPURate <= 0 {
+		return 0
+	}
 	return serviceConfigs.MaxCPURate
+}
+
+func SetMaxCPUNum() {
+	maxCPUNum := int((runtime.NumCPU() * serviceConfigs.MaxCPURate) / 100)
+	if maxCPUNum < 1 {
+		maxCPUNum = 1
+	}
+	runtime.GOMAXPROCS(maxCPUNum)
+	logger.Infof("set max cpu num: %d", maxCPUNum)
 }

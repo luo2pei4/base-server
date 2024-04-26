@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
 	"time"
 
@@ -43,7 +42,7 @@ func start(cmd *cobra.Command, args []string) {
 	logger.InitLog(configs.GetLogLevel(), configs.GetLogFile())
 
 	// 设置最大cpu使用数，默认50%
-	setMaxCPUNum()
+	configs.SetMaxCPUNum()
 
 	// 初始化router
 	router := routers.InitRouter()
@@ -78,13 +77,4 @@ func start(cmd *cobra.Command, args []string) {
 		logger.Infof("Server Shutdown: %s", err.Error())
 	}
 	logger.Info("Server exiting")
-}
-
-func setMaxCPUNum() {
-	rate := configs.GetMaxCPUUsage()
-	maxCPUNum := int((runtime.NumCPU() * rate) / 100)
-	if maxCPUNum >= 1 {
-		runtime.GOMAXPROCS(maxCPUNum)
-		logger.Infof("set max cpu num: %d", maxCPUNum)
-	}
 }
