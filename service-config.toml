@@ -2,5 +2,5 @@
 service_port = ":8080"
 # log output level
 log_level = "info"
-# log file path
+# log file path, *reboot required
 log_file = "./base-server.log"

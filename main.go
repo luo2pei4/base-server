@@ -13,7 +13,6 @@ import (
 	"github.com/luo2pei4/base-server/configs"
 	"github.com/luo2pei4/base-server/internal/logger"
 	"github.com/luo2pei4/base-server/routers"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -32,19 +31,16 @@ func init() {
 func main() {
 	// 加载配置文件
 	configs.LoadServiceConfig(flagServiceConfigFile)
+	// 启动配置文件监控
+	configs.StartServiceConfigWatch()
+	// 执行命令行
 	startCmd.Execute()
 }
 
 func start(cmd *cobra.Command, args []string) {
 
-	// 解析日志等级
-	logLevel, err := logrus.ParseLevel(configs.GetLogLevel())
-	if err != nil {
-		log.Fatalf("%s, %s", err.Error(), "log level must be info/warn/debug")
-	}
-
 	// 初始化日志框架
-	logger.InitLog(logLevel, configs.GetLogFile())
+	logger.InitLog(configs.GetLogLevel(), configs.GetLogFile())
 
 	// 设置最大cpu使用数，默认50%
 	setMaxCPUNum()

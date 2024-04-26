@@ -7,7 +7,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/fsnotify/fsnotify"
+	"github.com/luo2pei4/base-server/internal/logger"
 	"github.com/pelletier/go-toml/v2"
+	"github.com/spf13/viper"
 )
 
 type ServiceConfigs struct {
@@ -46,6 +49,17 @@ func LoadServiceConfig(path string) error {
 		return err
 	}
 	return nil
+}
+
+func StartServiceConfigWatch() {
+	v := viper.New()
+	v.SetConfigFile(serviceConfigsFile)
+	v.SetConfigType("toml")
+	v.WatchConfig()
+	v.OnConfigChange(func(in fsnotify.Event) {
+		LoadServiceConfig(serviceConfigsFile)
+		logger.SetLogLevel(serviceConfigs.LogLevel)
+	})
 }
 
 func GetSerivePort() (string, error) {

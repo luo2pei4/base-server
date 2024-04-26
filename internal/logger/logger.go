@@ -1,15 +1,22 @@
 package logger
 
 import (
+	"log"
+
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var logger *logrus.Logger
 
-func InitLog(logLevel logrus.Level, logPath string) {
+func InitLog(logLevel string, logPath string) {
+	level, err := logrus.ParseLevel(logLevel)
+	if err != nil {
+		log.Printf("%s, %s", err.Error(), "log level must be info/warn/error/debug")
+		level = logrus.InfoLevel
+	}
 	logger = logrus.New()
-	logger.SetLevel(logLevel)
+	logger.SetLevel(level)
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetOutput(&lumberjack.Logger{
 		Filename: logPath,
@@ -53,4 +60,13 @@ func Debug(args ...string) {
 
 func Panicf(format string, args ...interface{}) {
 	logger.Panicf(format, args...)
+}
+
+func SetLogLevel(logLevel string) {
+	level, err := logrus.ParseLevel(logLevel)
+	if err != nil {
+		log.Printf("%s, %s", err.Error(), "log level must be info/warn/error/debug")
+		level = logrus.InfoLevel
+	}
+	logger.SetLevel(level)
 }
