@@ -83,6 +83,8 @@ func start(cmd *cobra.Command, args []string) {
 func setMaxCPUNum() {
 	rate := configs.GetMaxCPUUsage()
 	maxCPUNum := int((runtime.NumCPU() * rate) / 100)
-	runtime.GOMAXPROCS(maxCPUNum)
-	logger.Infof("set max cpu num: %d", maxCPUNum)
+	if maxCPUNum >= 1 {
+		runtime.GOMAXPROCS(maxCPUNum)
+		logger.Infof("set max cpu num: %d", maxCPUNum)
+	}
 }
