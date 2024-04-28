@@ -6,8 +6,8 @@ import (
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/luo2pei4/base-server/internal/logger"
-	"github.com/luo2pei4/base-server/internal/metrics"
-	"github.com/luo2pei4/base-server/internal/middleware"
+	"github.com/luo2pei4/base-server/metrics"
+	"github.com/luo2pei4/base-server/middleware"
 )
 
 func InitRouter() *gin.Engine {
