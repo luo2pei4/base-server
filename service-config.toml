@@ -1,0 +1,8 @@
+# service port, *reboot required
+service_port = ":8080"
+# log output level
+log_level = "info"
+# log file path, *reboot required
+log_file = "./base-server.log"
+# max cpu num rate
+max_cpu_rate = 50

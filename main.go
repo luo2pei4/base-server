@@ -2,21 +2,16 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"regexp"
-	"runtime"
-	"strings"
 	"syscall"
 	"time"
 
-	"github.com/luo2pei4/base-server/logger"
+	"github.com/luo2pei4/base-server/configs"
+	"github.com/luo2pei4/base-server/internal/logger"
 	"github.com/luo2pei4/base-server/routers"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -26,67 +21,40 @@ var startCmd = &cobra.Command{
 	Run:   start,
 }
 
-var (
-	flagServerPort string
-	flagLogLevel   string
-	flagLogFile    string
-)
+var flagServiceConfigFile string
 
 func init() {
-	startCmd.Flags().StringVarP(&flagServerPort, "port", "p", ":8080", "server port, like '8080' or ':8080'")
-	startCmd.Flags().StringVarP(&flagLogLevel, "log-level", "l", "info", "the level of log")
-	startCmd.Flags().StringVarP(&flagLogFile, "log-file", "f", "./base-server.log", "the name of log file with full path, the file name must with suffix '.log'")
+	startCmd.Flags().StringVarP(&flagServiceConfigFile, "config", "c", "./service-config.toml", "service config file path")
 }
 
 func main() {
+	// 加载配置文件
+	configs.LoadServiceConfig(flagServiceConfigFile)
+	// 启动配置文件监控
+	configs.StartServiceConfigWatch()
+	// 执行命令行
 	startCmd.Execute()
-}
-
-func checkArgs() error {
-	// 检查端口
-	matched, err := regexp.MatchString("^:?[0-9]{4,5}", flagServerPort)
-	if err != nil {
-		return err
-	}
-	if !matched {
-		return fmt.Errorf("port is invalid")
-	}
-	// 检查日志等级
-	switch flagLogLevel {
-	case "info":
-	case "warn":
-	case "debug":
-	default:
-		return errors.New("log level must be info/warn/debug")
-	}
-	// 检查日志文件名称
-	if !strings.HasSuffix(flagLogFile, ".log") {
-		return errors.New("invalid log file name")
-	}
-	return nil
 }
 
 func start(cmd *cobra.Command, args []string) {
 
-	// 检查参数有效性
-	if err := checkArgs(); err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	// 解析日志等级
-	logLevel, _ := logrus.ParseLevel(flagLogLevel)
-
 	// 初始化日志框架
-	logger.InitLog(logLevel, flagLogFile)
+	logger.InitLog(configs.GetLogLevel(), configs.GetLogFile())
 
 	// 设置最大cpu使用数，默认50%
-	setMaxCPUNum()
+	configs.SetMaxCPUNum()
 
 	// 初始化router
 	router := routers.InitRouter()
 
+	// 获取服务端口号
+	port, err := configs.GetSerivePort()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	srv := &http.Server{
-		Addr:    flagServerPort, // 设置端口
+		Addr:    port, // 设置端口
 		Handler: router,
 	}
 
@@ -109,10 +77,4 @@ func start(cmd *cobra.Command, args []string) {
 		logger.Infof("Server Shutdown: %s", err.Error())
 	}
 	logger.Info("Server exiting")
-}
-
-func setMaxCPUNum() {
-	maxCPUNum := int((runtime.NumCPU() * 50) / 100)
-	runtime.GOMAXPROCS(maxCPUNum)
-	logger.Infof("set max cpu num: %d", maxCPUNum)
 }
