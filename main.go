@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/luo2pei4/base-server/configs"
+	"github.com/luo2pei4/base-server/configs/messages"
 	"github.com/luo2pei4/base-server/internal/logger"
 	"github.com/luo2pei4/base-server/routers"
 	"github.com/spf13/cobra"
@@ -32,6 +33,10 @@ func main() {
 	configs.LoadServiceConfig(flagServiceConfigFile)
 	// 启动配置文件监控
 	configs.StartServiceConfigWatch()
+	// 加载i18n配置
+	if err := messages.LoadMessages(configs.Geti18nDir(), configs.GetLanguage()); err != nil {
+		log.Fatalf("load i18n message config failed, %s", err.Error())
+	}
 	// 执行命令行
 	startCmd.Execute()
 }
@@ -59,7 +64,11 @@ func start(cmd *cobra.Command, args []string) {
 	}
 
 	go func() {
-		// 服务连接
+		logger.Info(messages.GetMsg(
+			messages.MsgTypeInfo,
+			messages.I00001,
+			map[string]any{"service_name": "edmund"}),
+		)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Panicf("server error, %s", err.Error())
 		}

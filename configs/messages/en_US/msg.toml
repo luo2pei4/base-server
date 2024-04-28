@@ -1,0 +1,4 @@
+[info]
+I00001 = "launch server, {{.service_name}}"
+[warn]
+[error]
