@@ -1,0 +1,4 @@
+[info]
+I00001 = "启动服务，{{.service_name}}"
+[warn]
+[error]

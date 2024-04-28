@@ -6,3 +6,7 @@ log_level = "info"
 log_file = "./base-server.log"
 # max cpu num rate
 max_cpu_rate = 50
+# i18n config files root path
+i18n_root_path = "./configs/messages"
+# language
+language = "jp_JP"

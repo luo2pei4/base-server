@@ -15,10 +15,12 @@ import (
 )
 
 type ServiceConfigs struct {
-	SericePort string `toml:"service_port"` // 端口
-	LogLevel   string `toml:"log_level"`    // 日志输出等级
-	LogFile    string `toml:"log_file"`     // 日志文件路径
-	MaxCPURate int    `toml:"max_cpu_rate"` // cpu最大使用率
+	ServicePort  string `toml:"service_port"`   // 端口
+	LogLevel     string `toml:"log_level"`      // 日志输出等级
+	LogFile      string `toml:"log_file"`       // 日志文件路径
+	MaxCPURate   int    `toml:"max_cpu_rate"`   // cpu最大使用率
+	I18nRootPath string `toml:"i18n_root_path"` // i18n文件根路径
+	Language     string `toml:"language"`       // 语言
 }
 
 var (
@@ -71,17 +73,17 @@ func StartServiceConfigWatch() {
 func GetSerivePort() (string, error) {
 	serviceConfigsMu.RLock()
 	defer serviceConfigsMu.RUnlock()
-	if len(serviceConfigs.SericePort) == 0 {
+	if len(serviceConfigs.ServicePort) == 0 {
 		return ":8080", nil
 	}
-	matched, err := regexp.MatchString("^:?[0-9]{4,5}", serviceConfigs.SericePort)
+	matched, err := regexp.MatchString("^:?[0-9]{4,5}", serviceConfigs.ServicePort)
 	if err != nil {
 		return "", err
 	}
 	if !matched {
-		return "", fmt.Errorf("%s is an invalid port", serviceConfigs.SericePort)
+		return "", fmt.Errorf("%s is an invalid port", serviceConfigs.ServicePort)
 	}
-	return serviceConfigs.SericePort, nil
+	return serviceConfigs.ServicePort, nil
 }
 
 func GetLogLevel() string {
@@ -112,6 +114,18 @@ func GetMaxCPUUsage() int {
 		return 0
 	}
 	return serviceConfigs.MaxCPURate
+}
+
+func Geti18nDir() string {
+	serviceConfigsMu.RLock()
+	defer serviceConfigsMu.RUnlock()
+	return serviceConfigs.I18nRootPath
+}
+
+func GetLanguage() string {
+	serviceConfigsMu.RLock()
+	defer serviceConfigsMu.RUnlock()
+	return serviceConfigs.Language
 }
 
 func SetMaxCPUNum() {
