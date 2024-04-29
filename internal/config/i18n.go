@@ -2,9 +2,9 @@ package config
 
 import (
 	"bytes"
-	"html/template"
 	"os"
 	"path"
+	"text/template"
 
 	"github.com/pelletier/go-toml/v2"
 )
