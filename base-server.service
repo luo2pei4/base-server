@@ -1,0 +1,11 @@
+[Unit]
+Description=base-server service
+After=network.target
+
+[Service]
+User=root
+Group=root
+ExecStart=/opt/baseserver/base-server
+
+[Install]
+WantedBy=multi-user.target
