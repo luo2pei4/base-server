@@ -18,7 +18,7 @@ func CheckAuth(ctx *gin.Context) {
 		return service.JwtSecret, nil
 	})
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "auth failed, %s", err.Error())
+		ctx.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 	ctx.Next()
