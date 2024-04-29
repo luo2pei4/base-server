@@ -1,9 +1,8 @@
-package messages
+package config
 
 import (
 	"bytes"
 	"html/template"
-	"io"
 	"os"
 	"path"
 
@@ -83,12 +82,4 @@ func GetMsg(msgType, msgID string, data map[string]any) string {
 		}
 	}
 	return ""
-}
-
-func WriteMsg(writer io.Writer, msgType, msgID string, data map[string]any) {
-	if msgTmplMap, ok := msgs[msgType]; ok {
-		if msgTmpl, ok := msgTmplMap[msgID]; ok {
-			msgTmpl.Execute(writer, data)
-		}
-	}
 }

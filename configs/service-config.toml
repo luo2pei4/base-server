@@ -9,4 +9,4 @@ max_cpu_rate = 50
 # i18n config files root path
 i18n_root_path = "./configs/messages"
 # language
-language = "jp_JP"
+language = "zh_CN"

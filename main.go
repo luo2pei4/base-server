@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/luo2pei4/base-server/configs"
-	"github.com/luo2pei4/base-server/configs/messages"
+	"github.com/luo2pei4/base-server/internal/config"
+	"github.com/luo2pei4/base-server/internal/dao"
 	"github.com/luo2pei4/base-server/internal/logger"
 	"github.com/luo2pei4/base-server/routers"
 	"github.com/spf13/cobra"
@@ -25,16 +25,16 @@ var startCmd = &cobra.Command{
 var flagServiceConfigFile string
 
 func init() {
-	startCmd.Flags().StringVarP(&flagServiceConfigFile, "config", "c", "./service-config.toml", "service config file path")
+	startCmd.Flags().StringVarP(&flagServiceConfigFile, "config", "c", "./configs/service-config.toml", "service config file path")
 }
 
 func main() {
 	// 加载配置文件
-	configs.LoadServiceConfig(flagServiceConfigFile)
+	config.LoadServiceConfig(flagServiceConfigFile)
 	// 启动配置文件监控
-	configs.StartServiceConfigWatch()
+	config.StartServiceConfigWatch()
 	// 加载i18n配置
-	if err := messages.LoadMessages(configs.Geti18nDir(), configs.GetLanguage()); err != nil {
+	if err := config.LoadMessages(config.Geti18nDir(), config.GetLanguage()); err != nil {
 		log.Fatalf("load i18n message config failed, %s", err.Error())
 	}
 	// 执行命令行
@@ -44,16 +44,21 @@ func main() {
 func start(cmd *cobra.Command, args []string) {
 
 	// 初始化日志框架
-	logger.InitLog(configs.GetLogLevel(), configs.GetLogFile())
+	logger.InitLog(config.GetLogLevel(), config.GetLogFile())
 
 	// 设置最大cpu使用数，默认50%
-	configs.SetMaxCPUNum()
+	config.SetMaxCPUNum()
+
+	// 初始化数据库
+	if err := dao.InitDB(dao.SupportedDBSqlite3); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	// 初始化router
 	router := routers.InitRouter()
 
 	// 获取服务端口号
-	port, err := configs.GetSerivePort()
+	port, err := config.GetSerivePort()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -64,9 +69,9 @@ func start(cmd *cobra.Command, args []string) {
 	}
 
 	go func() {
-		logger.Info(messages.GetMsg(
-			messages.MsgTypeInfo,
-			messages.I00001,
+		logger.Info(config.GetMsg(
+			config.MsgTypeInfo,
+			config.I00001,
 			map[string]any{"service_name": "edmund"}),
 		)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
