@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/luo2pei4/base-server/internal/dao"
+	"github.com/luo2pei4/base-server/internal/utils"
 )
 
 type BaseClaims struct {
@@ -13,7 +14,15 @@ type BaseClaims struct {
 	jwt.RegisteredClaims
 }
 
-var JwtSecret = []byte("rosemary")
+var (
+	JwtSecret []byte
+	dur       time.Duration
+)
+
+func init() {
+	JwtSecret = utils.GetSecretKey(64)
+	dur = time.Minute * 15
+}
 
 func LoginService(name, passwd string) (string, error) {
 	userInfo, err := dao.QueryUser(name, passwd)
@@ -21,7 +30,7 @@ func LoginService(name, passwd string) (string, error) {
 		return "", err
 	}
 	nowTime := time.Now().Local()
-	expiresAt := nowTime.Add(time.Minute)
+	expiresAt := nowTime.Add(dur)
 	claims := BaseClaims{
 		name,
 		passwd,
