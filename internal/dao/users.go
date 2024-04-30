@@ -15,7 +15,7 @@ func QueryUser(name, passwd string) (*Users, error) {
 	if result := baseDB.
 		Table("users").
 		Where("name = ? and passwd = ?", name, passwd).
-		First(user); result.Error != nil {
+		Take(user); result.Error != nil {
 		return nil, result.Error
 	}
 	return user, nil
