@@ -11,13 +11,13 @@ const (
 	SupportedDBSqlite3 = "sqlite3"
 )
 
-var baseServerDB *gorm.DB
+var baseDB *gorm.DB
 
 func InitDB(dbType string) error {
 	var err error
 	switch dbType {
 	case SupportedDBSqlite3:
-		baseServerDB, err = initSqlite3DB()
+		baseDB, err = initSqlite3DB()
 	default:
 		return fmt.Errorf("database '%s' is not supported", dbType)
 	}
@@ -27,7 +27,7 @@ func InitDB(dbType string) error {
 	}
 
 	// 查看users表是否存在
-	if !baseServerDB.Migrator().HasTable("users") {
+	if !baseDB.Migrator().HasTable("users") {
 		return fmt.Errorf("table 'users' does not exist")
 	}
 	return nil
