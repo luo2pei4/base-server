@@ -1,4 +1,4 @@
-package messages
+package config
 
 // info messages id
 const (
