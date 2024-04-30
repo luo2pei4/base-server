@@ -58,7 +58,7 @@ func start(cmd *cobra.Command, args []string) {
 	router := routers.InitRouter()
 
 	// 获取服务端口号
-	port, err := config.GetSerivePort()
+	port, err := config.GetServicePort()
 	if err != nil {
 		log.Fatal(err.Error())
 	}

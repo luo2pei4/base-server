@@ -70,7 +70,7 @@ func StartServiceConfigWatch() {
 	})
 }
 
-func GetSerivePort() (string, error) {
+func GetServicePort() (string, error) {
 	serviceConfigsMu.RLock()
 	defer serviceConfigsMu.RUnlock()
 	if len(serviceConfigs.ServicePort) == 0 {
